@@ -6,42 +6,42 @@ from google import genai
 from google.genai import types
 from prompts import CHECKER_PROMPT, get_explainer_prompt
 
-# Load environment variables from .env file
+# Load environment variables
 load_dotenv()
 
-# Initialize API clients for Groq and Gemini
-groq_client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Verify that API keys are loaded properly
+gemini_key = os.getenv("GEMINI_API_KEY")
+groq_key = os.getenv("GROQ_API_KEY")
+
+if not gemini_key or not groq_key:
+    print("Warning: Missing GEMINI_API_KEY or GROQ_API_KEY in .env file.")
+
+# Initialize API clients
+groq_client = Groq(api_key=groq_key)
+gemini_client = genai.Client(api_key=gemini_key)
 
 def run_checker_agent(text_input):
-    """
-    Call Groq API to analyze English text for spelling, grammar, and Viet-lish errors.
-    Returns a structured JSON object containing corrections and error types.
-    """
+    """Call Groq to perform rapid grammar and Viet-lish checks"""
     try:
         chat_completion = groq_client.chat.completions.create(
             messages=[
                 {"role": "system", "content": CHECKER_PROMPT},
                 {"role": "user", "content": text_input}
             ],
-            model="llama-3.1-8b-instant", # Active fast model on Groq
-            response_format={"type": "json_object"} # Enforce strict JSON output
+            model="llama-3.1-8b-instant",
+            response_format={"type": "json_object"}
         )
-        # Parse the raw JSON string from the response into a Python dictionary
-        result = json.loads(chat_completion.choices[0].message.content)
-        return result
+        return json.loads(chat_completion.choices[0].message.content)
     except Exception as e:
         return {"error": f"Checker Agent Error: {str(e)}"}
 
 def run_explainer_agent(error_details, level="vietnamese"):
-    """
-    Call Gemini API using the new google-genai SDK to explain errors.
-    Supports three levels: vietnamese, bilingual, and simple_english.
-    """
+    """Call Gemini to explain errors using the active gemini-2.0-flash model"""
+    # Using gemini-2.0-flash based on your active API model list
+    target_model = 'gemini-2.0-flash'
     try:
-        # Use gemini-1.5-flash as the stable free-tier model
         response = gemini_client.models.generate_content(
-            model='gemini-1.5-flash',
+            model=target_model,
             contents=f"Please explain these errors:\n{json.dumps(error_details, ensure_ascii=False)}",
             config=types.GenerateContentConfig(
                 system_instruction=get_explainer_prompt(level)
@@ -49,9 +49,18 @@ def run_explainer_agent(error_details, level="vietnamese"):
         )
         return response.text
     except Exception as e:
-        return f"Explainer Agent Error: {str(e)}"
+        error_msg = str(e)
+        # Diagnostics: Safe model listing in case of future model mismatches
+        if "404" in error_msg or "NOT_FOUND" in error_msg:
+            print(f"\n[Diagnostic] Model '{target_model}' failed. Listing your available models:")
+            try:
+                models = gemini_client.models.list()
+                for m in models:
+                    print(f" - {m.name}")
+            except Exception as list_err:
+                print(f"Could not list models: {str(list_err)}")
+        return f"Explainer Agent Error: {error_msg}"
 
-# Local testing block to verify API integrations
 if __name__ == "__main__":
     test_sentence = "My family has 4 people, and I make research about AI."
     print("--- RUNNING CHECKER AGENT (GROQ) ---")
