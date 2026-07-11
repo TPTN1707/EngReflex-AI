@@ -36,9 +36,9 @@ def run_checker_agent(text_input):
         return {"error": f"Checker Agent Error: {str(e)}"}
 
 def run_explainer_agent(error_details, level="vietnamese"):
-    """Call Gemini to explain errors using the active gemini-2.0-flash model"""
-    # Using gemini-2.0-flash based on your active API model list
-    target_model = 'gemini-2.0-flash'
+    """Call Gemini to explain errors using the active gemini-flash-latest alias"""
+    # Using 'gemini-flash-latest' to bypass the zero-quota limit on experimental 2.x models
+    target_model = 'gemini-flash-latest'
     try:
         response = gemini_client.models.generate_content(
             model=target_model,
