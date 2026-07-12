@@ -10,7 +10,7 @@ Strict Rules for Error Isolation and Accuracy:
 4. Native Speaker Rephrasing: In the "native_rephrased" field, provide a highly natural, idiomatic way a native English speaker would express the exact same idea. This must go beyond mere grammatical correction to sound professional and fluent (e.g., change "My family has four people" to "There are four people in my family", or "arrange my job" to "manage my workload").
 5. Strict Separation of Error vs. Style: The "errors" array must ONLY contain objective, non-negotiable mistakes (Spelling, Grammar, Punctuation, and severe lexical errors like "open the light" or "make research"). 
    Do NOT include stylistic or naturalness improvements in the "errors" list if the original phrase is grammatically valid. 
-   Stylistic rephrasings (such as changing "My family has four people" to "There are four people in my family") belong EXCLUSIVELY in the "native_rephrased" field. Do not label grammatically correct sentences as "Incorrect".
+   Stylistic rephrasings belong EXCLUSIVELY in the "native_rephrased" field.
 
 You must return the output ONLY in a JSON format as shown below, with no conversational filler:
 {
@@ -29,39 +29,38 @@ You must return the output ONLY in a JSON format as shown below, with no convers
 }
 """
 
-# Prompt builder for the explainer (Runs on Gemini - Now includes Structure & Tense analysis)
+# Prompt builder for the explainer (Runs on Gemini)
 def get_explainer_prompt(level="vietnamese"):
     base_instructions = """
-    After explaining the errors, you MUST add a dedicated section called "--- SENTENCE STRUCTURE & TENSE ANALYSIS ---".
-    In this section, briefly break down:
-    1. The main clause(s) and sentence pattern.
-    2. The primary tense(s) used and why they are appropriate or inappropriate.
+    You will receive a JSON containing: original_text, corrected_text, native_rephrased, and errors.
+    Your explanation MUST be divided into three clear sections:
+    
+    1. --- ERROR CORRECTION ---
+       Explain each error listed in the 'errors' array.
+       
+    2. --- NATIVE STYLE ANALYSIS ---
+       Explain why the 'native_rephrased' version sounds much more natural and native. 
+       Highlight advanced vocabulary, idioms, or phrasal structures used in the native version (e.g., why "I'm set to graduate" or "schooling" is superior).
+       
+    3. --- SENTENCE STRUCTURE & TENSE ANALYSIS ---
+       Compare and analyze the structural patterns and tenses used in BOTH the 'corrected_text' and 'native_rephrased' sentences so the user can learn advanced syntax.
     """
     
     if level == "vietnamese":
         return f"""
-        You are an English teacher who speaks Vietnamese. Explain the grammar/vocabulary errors in Vietnamese.
-        Keep it simple, clear, and explain the difference in thinking between Vietnamese and English if it is a Viet-lish error.
-        Requirement: Be concise, use bullet points, maximum 150 words.
-        
+        You are an English teacher who speaks Vietnamese. 
+        Explain all sections defined below in Vietnamese. Keep it clear, friendly, and pedagogical.
         {base_instructions}
-        Explain the "SENTENCE STRUCTURE & TENSE ANALYSIS" section entirely in Vietnamese.
         """
     elif level == "bilingual":
         return f"""
-        You are a bilingual English teacher. Explain the errors using a bilingual structure:
-        Each point must have a simple English sentence (A2-B1 level) followed immediately by its Vietnamese translation.
-        Requirement: Be concise, maximum 150 words.
-        
+        You are a bilingual English teacher. 
+        Explain all sections defined below using a bilingual format (English explanations with Vietnamese translations).
         {base_instructions}
-        Provide the "SENTENCE STRUCTURE & TENSE ANALYSIS" section in a bilingual format.
         """
     else:  # simple_english
         return f"""
-        You are a friendly English teacher. Explain the error and the correction entirely in Simple English (vocabulary level A2-B1). 
-        Avoid complex academic grammar terms. Use basic words and simple sentences to explain.
-        Requirement: Be concise, use bullet points, maximum 150 words.
-        
+        You are a friendly English teacher. 
+        Explain all sections defined below entirely in Simple English (vocabulary level A2-B1).
         {base_instructions}
-        Provide the "SENTENCE STRUCTURE & TENSE ANALYSIS" section entirely in Simple English.
         """
