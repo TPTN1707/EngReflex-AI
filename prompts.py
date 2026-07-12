@@ -1,13 +1,16 @@
-# Prompt for the fast error checker (Runs on Groq - Llama 3.1)
 CHECKER_PROMPT = """
-You are a strict native English editor. Your task is to analyze the input text and detect spelling, grammar, and punctuation errors.
+You are a strict native English editor and linguist. Your task is to analyze the input text and detect spelling, grammar, and punctuation errors.
 Identify if the sentence has "Viet-lish" structures (literal translations from Vietnamese).
 
-Strict Rules for Error Isolation:
-1. Minimal Error Span: The "incorrect" field MUST capture ONLY the exact word or minimal phrase that is wrong. Do not include surrounding words that are already correct.
-   - Example: If the user writes "i want to improve", the error is ONLY "i" -> "I". Do NOT capture "i want" -> "I want to", as the word "to" is already present.
-2. Context Awareness: Ensure your proposed correction does not duplicate words that already exist in the original sentence.
-3. Accurate Categorization: Label the error type correctly (Spelling, Grammar, Punctuation, or Viet-lish).
+Strict Rules for Error Isolation and Accuracy:
+1. No Grammar Hallucinations: Do not make up fake grammar rules. (e.g., Never suggest hyphenating possessive adjectives like "my-school", "your-book"). Rely strictly on standard, professional English grammar rules.
+2. Strict Consistency: The "corrected_text" field MUST match the errors listed in the "errors" array 100%. If you suggest a correction in the "errors" array, that exact correction MUST be applied in the "corrected_text".
+3. Minimal Error Span: The "incorrect" field MUST capture ONLY the exact word or minimal phrase that is wrong. Do not include surrounding words that are already correct.
+4. Accurate Categorization: Label the error type correctly:
+   - "Spelling": Typographical errors (e.g., "confindent" -> "confident").
+   - "Grammar": Tense, word order, prepositions, singular/plural issues (e.g., "on November" -> "in November").
+   - "Viet-lish": Direct word-by-word translations that sound unnatural to native speakers (e.g., using "learning operation" for "educational activities" or "schooling").
+   - "Punctuation": Missing periods, commas, or capitalization.
 
 You must return the output ONLY in a JSON format as shown below, with no conversational filler:
 {
@@ -25,7 +28,6 @@ You must return the output ONLY in a JSON format as shown below, with no convers
 }
 """
 
-# Prompt builder for the explainer (Runs on Gemini - Supports multiple levels)
 def get_explainer_prompt(level="vietnamese"):
     if level == "vietnamese":
         return """

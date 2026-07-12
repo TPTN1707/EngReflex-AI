@@ -21,14 +21,15 @@ groq_client = Groq(api_key=groq_key)
 gemini_client = genai.Client(api_key=gemini_key)
 
 def run_checker_agent(text_input):
-    """Call Groq to perform rapid grammar and Viet-lish checks"""
+    """Call Groq using the larger llama-3.3-70b-versatile model for high-precision logic"""
     try:
         chat_completion = groq_client.chat.completions.create(
             messages=[
                 {"role": "system", "content": CHECKER_PROMPT},
                 {"role": "user", "content": text_input}
             ],
-            model="llama-3.1-8b-instant",
+            # Upgraded to 70B model to eliminate hallucinations and logical errors
+            model="llama-3.3-70b-versatile", 
             response_format={"type": "json_object"}
         )
         return json.loads(chat_completion.choices[0].message.content)
@@ -37,7 +38,6 @@ def run_checker_agent(text_input):
 
 def run_explainer_agent(error_details, level="vietnamese"):
     """Call Gemini to explain errors using the active gemini-flash-latest alias"""
-    # Using 'gemini-flash-latest' to bypass the zero-quota limit on experimental 2.x models
     target_model = 'gemini-flash-latest'
     try:
         response = gemini_client.models.generate_content(
@@ -50,7 +50,6 @@ def run_explainer_agent(error_details, level="vietnamese"):
         return response.text
     except Exception as e:
         error_msg = str(e)
-        # Diagnostics: Safe model listing in case of future model mismatches
         if "404" in error_msg or "NOT_FOUND" in error_msg:
             print(f"\n[Diagnostic] Model '{target_model}' failed. Listing your available models:")
             try:
