@@ -58,8 +58,6 @@ You will need the following API keys (both have generous free tiers):
 
 To start the local Streamlit web application, run the following command:
 
-    ```text
     streamlit run main.py
-    ```
 
 The application will automatically open in a new tab in your default browser (usually at http://localhost:8501).
