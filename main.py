@@ -45,30 +45,34 @@ if st.button("Analyze & Train", type="primary"):
         if "error" in check_result:
             st.error(check_result["error"])
         else:
-            # Display original vs corrected text
             st.success("Analysis Complete!")
             
+            # Display original vs corrected text
             st.markdown("### 📝 Corrections")
             col_orig, col_corr = st.columns(2)
             with col_orig:
                 st.info(f"**Original Text:**\n\n {check_result['original_text']}")
             with col_corr:
-                st.success(f"**Suggested Text:**\n\n {check_result['corrected_text']}")
+                st.success(f"**Suggested Text (Grammatically Correct):**\n\n {check_result['corrected_text']}")
+            
+            # NEW: Display Native Speaker Rephrasing
+            native_style = check_result.get("native_rephrased", "")
+            if native_style:
+                st.info(f"✨ **Native Speaker Style (Highly Natural):**\n\n *\"{native_style}\"*")
             
             # Display detailed errors list if any
             errors_list = check_result.get("errors", [])
             if errors_list:
                 st.markdown("### 🔍 Detected Patterns")
                 for err in errors_list:
-                    # Some responses might miss specific fields, handles fallback gracefully
                     incorrect = err.get("incorrect", "N/A")
                     correct = err.get("correct", "N/A")
                     err_type = err.get("type", "Error")
                     
                     st.markdown(f"- **Type:** `{err_type}` | **Incorrect:** `\"{incorrect}\"` ➡️ **Correct:** `\"{correct}\"`")
                 
-                # Step 2: Run the Explainer Agent (Lazy loading - runs after checker succeeds)
-                st.markdown("### 💡 Tutor's Explanation")
+                # Step 2: Run the Explainer Agent
+                st.markdown("### 💡 Tutor's Explanation & Analysis")
                 with st.spinner("Generating tailored explanation..."):
                     explanation = run_explainer_agent(errors_list, level=explanation_level)
                 
