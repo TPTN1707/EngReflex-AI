@@ -28,7 +28,6 @@ def run_checker_agent(text_input):
                 {"role": "system", "content": CHECKER_PROMPT},
                 {"role": "user", "content": text_input}
             ],
-            # Upgraded to 70B model to eliminate hallucinations and logical errors
             model="llama-3.3-70b-versatile", 
             response_format={"type": "json_object"}
         )
@@ -36,13 +35,14 @@ def run_checker_agent(text_input):
     except Exception as e:
         return {"error": f"Checker Agent Error: {str(e)}"}
 
-def run_explainer_agent(error_details, level="vietnamese"):
-    """Call Gemini to explain errors using the active gemini-flash-latest alias"""
+def run_explainer_agent(check_result, level="vietnamese"):
+    """Call Gemini with full JSON context to explain errors and analyze native rephrasing"""
     target_model = 'gemini-flash-latest'
     try:
         response = gemini_client.models.generate_content(
             model=target_model,
-            contents=f"Please explain these errors:\n{json.dumps(error_details, ensure_ascii=False)}",
+            # Pass the entire check_result dictionary to give full context to Gemini
+            contents=f"Please explain and analyze this writing analysis data:\n{json.dumps(check_result, ensure_ascii=False)}",
             config=types.GenerateContentConfig(
                 system_instruction=get_explainer_prompt(level)
             )
@@ -68,5 +68,6 @@ if __name__ == "__main__":
     
     if "error" not in check_result:
         print("\n--- RUNNING EXPLAINER AGENT (GEMINI) ---")
-        explanation = run_explainer_agent(check_result["errors"], level="vietnamese")
+        # Test passing the entire dict
+        explanation = run_explainer_agent(check_result, level="vietnamese")
         print(explanation)
