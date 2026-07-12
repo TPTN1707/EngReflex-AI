@@ -58,7 +58,7 @@ You will need the following API keys (both have generous free tiers):
 
 To start the local Streamlit web application, run the following command:
 
-    ```bash
+    ```text
     streamlit run main.py
     ```
 
