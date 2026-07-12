@@ -55,7 +55,7 @@ if st.button("Analyze & Train", type="primary"):
             with col_corr:
                 st.success(f"**Suggested Text (Grammatically Correct):**\n\n {check_result['corrected_text']}")
             
-            # NEW: Display Native Speaker Rephrasing
+            # Display Native Speaker Rephrasing
             native_style = check_result.get("native_rephrased", "")
             if native_style:
                 st.info(f"✨ **Native Speaker Style (Highly Natural):**\n\n *\"{native_style}\"*")
@@ -71,10 +71,11 @@ if st.button("Analyze & Train", type="primary"):
                     
                     st.markdown(f"- **Type:** `{err_type}` | **Incorrect:** `\"{incorrect}\"` ➡️ **Correct:** `\"{correct}\"`")
                 
-                # Step 2: Run the Explainer Agent
+                # Step 2: Run the Explainer Agent with FULL check_result context
                 st.markdown("### 💡 Tutor's Explanation & Analysis")
                 with st.spinner("Generating tailored explanation..."):
-                    explanation = run_explainer_agent(errors_list, level=explanation_level)
+                    # Pass the whole check_result dictionary
+                    explanation = run_explainer_agent(check_result, level=explanation_level)
                 
                 st.write(explanation)
             else:
