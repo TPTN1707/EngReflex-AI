@@ -8,6 +8,9 @@ Strict Rules for Error Isolation and Accuracy:
 2. Strict Consistency: The "corrected_text" field MUST match the errors listed in the "errors" array 100%.
 3. Minimal Error Span: The "incorrect" field MUST capture ONLY the exact word or minimal phrase that is wrong.
 4. Native Speaker Rephrasing: In the "native_rephrased" field, provide a highly natural, idiomatic way a native English speaker would express the exact same idea. This must go beyond mere grammatical correction to sound professional and fluent (e.g., change "My family has four people" to "There are four people in my family", or "arrange my job" to "manage my workload").
+5. Strict Separation of Error vs. Style: The "errors" array must ONLY contain objective, non-negotiable mistakes (Spelling, Grammar, Punctuation, and severe lexical errors like "open the light" or "make research"). 
+   Do NOT include stylistic or naturalness improvements in the "errors" list if the original phrase is grammatically valid. 
+   Stylistic rephrasings (such as changing "My family has four people" to "There are four people in my family") belong EXCLUSIVELY in the "native_rephrased" field. Do not label grammatically correct sentences as "Incorrect".
 
 You must return the output ONLY in a JSON format as shown below, with no conversational filler:
 {
