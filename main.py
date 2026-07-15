@@ -1,5 +1,5 @@
 import streamlit as st
-from agent import run_checker_agent, run_explainer_agent, run_chat_partner_agent
+from src.services.groq_service import run_checker_agent, run_explainer_agent, run_chat_partner_agent
 
 # Page configuration
 st.set_page_config(
@@ -16,7 +16,7 @@ st.subheader("Your AI Reflex Gym to eliminate Vietnamese-translation habits")
 tab_sentence, tab_chat = st.tabs(["🎯 Single Sentence Trainer", "💬 Reflex Chat Arena"])
 
 # ==========================================
-# TAB 1: SINGLE SENTENCE TRAINER (Existing)
+# TAB 1: SINGLE SENTENCE TRAINER
 # ==========================================
 with tab_sentence:
     user_text = st.text_area(
@@ -80,12 +80,11 @@ with tab_sentence:
                     st.info("Excellent! No obvious grammar or translation patterns detected.")
 
 # ==========================================
-# TAB 2: REFLEX CHAT ARENA (NEW)
+# TAB 2: REFLEX CHAT ARENA
 # ==========================================
 with tab_chat:
     # Initialize session states for chat
     if "chat_history" not in st.session_state:
-        # Initial greeting from the AI friend to trigger the conversation
         st.session_state.chat_history = [
             {"role": "model", "parts": [{"text": "Hi there! I'm your AI chat buddy. How was your day today? Tell me what you did!"}]}
         ]
@@ -152,7 +151,7 @@ with tab_chat:
             st.session_state.chat_history.append({"role": "model", "parts": [{"text": ai_response}]})
             st.rerun()
 
-    # Right Column: Real-time Tutor Panel (Updates instantly per message)
+    # Right Column: Real-time Tutor Panel
     with col_tutor_ui:
         st.markdown("### 💡 Real-Time Tutor Panel")
         st.write("This panel analyzes your *very last* sent message in real-time.")
