@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from groq import Groq
 from google import genai
 from google.genai import types
-from prompts import CHECKER_PROMPT, get_explainer_prompt
+from prompts import CHECKER_PROMPT, get_explainer_prompt, CHAT_PARTNER_PROMPT
 
 # Load environment variables
 load_dotenv()
@@ -41,7 +41,6 @@ def run_explainer_agent(check_result, level="vietnamese"):
     try:
         response = gemini_client.models.generate_content(
             model=target_model,
-            # Pass the entire check_result dictionary to give full context to Gemini
             contents=f"Please explain and analyze this writing analysis data:\n{json.dumps(check_result, ensure_ascii=False)}",
             config=types.GenerateContentConfig(
                 system_instruction=get_explainer_prompt(level)
@@ -60,14 +59,20 @@ def run_explainer_agent(check_result, level="vietnamese"):
                 print(f"Could not list models: {str(list_err)}")
         return f"Explainer Agent Error: {error_msg}"
 
-if __name__ == "__main__":
-    test_sentence = "My family has 4 people, and I make research about AI."
-    print("--- RUNNING CHECKER AGENT (GROQ) ---")
-    check_result = run_checker_agent(test_sentence)
-    print(json.dumps(check_result, indent=2, ensure_ascii=False))
-    
-    if "error" not in check_result:
-        print("\n--- RUNNING EXPLAINER AGENT (GEMINI) ---")
-        # Test passing the entire dict
-        explanation = run_explainer_agent(check_result, level="vietnamese")
-        print(explanation)
+# NEW: Call Gemini as the friendly Chat Partner
+def run_chat_partner_agent(formatted_history):
+    """
+    Call Gemini using the standard flash model to generate the next response in the chat.
+    formatted_history should be a list of dicts matching Gemini's role/parts schema.
+    """
+    try:
+        response = gemini_client.models.generate_content(
+            model='gemini-flash-latest',
+            contents=formatted_history,
+            config=types.GenerateContentConfig(
+                system_instruction=CHAT_PARTNER_PROMPT
+            )
+        )
+        return response.text
+    except Exception as e:
+        return f"Chat Partner Error: {str(e)}"
