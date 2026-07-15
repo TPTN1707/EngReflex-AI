@@ -2,23 +2,19 @@ import os
 import json
 from dotenv import load_dotenv
 from groq import Groq
-from google import genai
-from google.genai import types
 from prompts import CHECKER_PROMPT, get_explainer_prompt, CHAT_PARTNER_PROMPT
 
 # Load environment variables
 load_dotenv()
 
-# Verify that API keys are loaded properly
-gemini_key = os.getenv("GEMINI_API_KEY")
+# Verify that Groq API key is loaded properly
 groq_key = os.getenv("GROQ_API_KEY")
 
-if not gemini_key or not groq_key:
-    print("Warning: Missing GEMINI_API_KEY or GROQ_API_KEY in .env file.")
+if not groq_key:
+    print("Warning: Missing GROQ_API_KEY in .env file.")
 
-# Initialize API clients
+# Initialize the Groq API client
 groq_client = Groq(api_key=groq_key)
-gemini_client = genai.Client(api_key=gemini_key)
 
 def run_checker_agent(text_input):
     """Call Groq using llama-3.3-70b-versatile for high-precision grammar logic"""
@@ -36,34 +32,26 @@ def run_checker_agent(text_input):
         return {"error": f"Checker Agent Error: {str(e)}"}
 
 def run_explainer_agent(check_result, level="vietnamese"):
-    """Call Gemini using the newer, less congested gemini-2.0-flash-lite model"""
-    # Switched to 2.0-flash-lite to avoid the 503 spikes of the standard 1.5-flash
-    target_model = 'gemini-2.0-flash-lite'
+    """
+    Call Groq using the highly intelligent llama-3.3-70b-versatile model to explain errors.
+    This completely bypasses Google Gemini's 503/429 quota and regional limitations.
+    """
     try:
-        response = gemini_client.models.generate_content(
-            model=target_model,
-            contents=f"Please explain and analyze this writing analysis data:\n{json.dumps(check_result, ensure_ascii=False)}",
-            config=types.GenerateContentConfig(
-                system_instruction=get_explainer_prompt(level)
-            )
+        chat_completion = groq_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": get_explainer_prompt(level)},
+                {"role": "user", "content": f"Please explain and analyze this writing analysis data:\n{json.dumps(check_result, ensure_ascii=False)}"}
+            ],
+            model="llama-3.3-70b-versatile" # Highly capable 70B model with fast LPU speed
         )
-        return response.text
+        return chat_completion.choices[0].message.content
     except Exception as e:
-        error_msg = str(e)
-        if "404" in error_msg or "NOT_FOUND" in error_msg:
-            print(f"\n[Diagnostic] Model '{target_model}' failed. Listing your available models:")
-            try:
-                models = gemini_client.models.list()
-                for m in models:
-                    print(f" - {m.name}")
-            except Exception as list_err:
-                print(f"Could not list models: {str(list_err)}")
-        return f"Explainer Agent Error: {error_msg}"
+        return f"Explainer Agent Error: {str(e)}"
 
 def run_chat_partner_agent(chat_history):
     """
     Call Groq using llama-3.1-8b-instant to generate the next response.
-    This guarantees lightning-fast chat speed and avoids Gemini's free-tier 503 limits.
+    Guarantees lightning-fast chat speed and 100% uptime.
     """
     try:
         # Convert Gemini's chat history schema into Groq's OpenAI-compatible message format
@@ -75,7 +63,7 @@ def run_chat_partner_agent(chat_history):
 
         chat_completion = groq_client.chat.completions.create(
             messages=messages,
-            model="llama-3.1-8b-instant" # Very fast, low latency, highly stable
+            model="llama-3.1-8b-instant" # Fast, low latency, highly stable
         )
         return chat_completion.choices[0].message.content
     except Exception as e:
