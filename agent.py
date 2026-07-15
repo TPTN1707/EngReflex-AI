@@ -21,7 +21,7 @@ groq_client = Groq(api_key=groq_key)
 gemini_client = genai.Client(api_key=gemini_key)
 
 def run_checker_agent(text_input):
-    """Call Groq using the larger llama-3.3-70b-versatile model for high-precision logic"""
+    """Call Groq using llama-3.3-70b-versatile for high-precision grammar logic"""
     try:
         chat_completion = groq_client.chat.completions.create(
             messages=[
@@ -36,8 +36,9 @@ def run_checker_agent(text_input):
         return {"error": f"Checker Agent Error: {str(e)}"}
 
 def run_explainer_agent(check_result, level="vietnamese"):
-    """Call Gemini with full JSON context to explain errors and analyze native rephrasing"""
-    target_model = 'gemini-flash-latest'
+    """Call Gemini using the newer, less congested gemini-2.0-flash-lite model"""
+    # Switched to 2.0-flash-lite to avoid the 503 spikes of the standard 1.5-flash
+    target_model = 'gemini-2.0-flash-lite'
     try:
         response = gemini_client.models.generate_content(
             model=target_model,
@@ -59,20 +60,23 @@ def run_explainer_agent(check_result, level="vietnamese"):
                 print(f"Could not list models: {str(list_err)}")
         return f"Explainer Agent Error: {error_msg}"
 
-# NEW: Call Gemini as the friendly Chat Partner
-def run_chat_partner_agent(formatted_history):
+def run_chat_partner_agent(chat_history):
     """
-    Call Gemini using the standard flash model to generate the next response in the chat.
-    formatted_history should be a list of dicts matching Gemini's role/parts schema.
+    Call Groq using llama-3.1-8b-instant to generate the next response.
+    This guarantees lightning-fast chat speed and avoids Gemini's free-tier 503 limits.
     """
     try:
-        response = gemini_client.models.generate_content(
-            model='gemini-flash-latest',
-            contents=formatted_history,
-            config=types.GenerateContentConfig(
-                system_instruction=CHAT_PARTNER_PROMPT
-            )
+        # Convert Gemini's chat history schema into Groq's OpenAI-compatible message format
+        messages = [{"role": "system", "content": CHAT_PARTNER_PROMPT}]
+        for msg in chat_history:
+            role = "assistant" if msg["role"] == "model" else "user"
+            text = msg["parts"][0]["text"]
+            messages.append({"role": role, "content": text})
+
+        chat_completion = groq_client.chat.completions.create(
+            messages=messages,
+            model="llama-3.1-8b-instant" # Very fast, low latency, highly stable
         )
-        return response.text
+        return chat_completion.choices[0].message.content
     except Exception as e:
         return f"Chat Partner Error: {str(e)}"
