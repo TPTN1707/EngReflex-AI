@@ -21,11 +21,16 @@ The project utilizes a fast, cost-effective **dual-API multi-agent architecture*
 
 ## 🛠️ Tech Stack & Architecture
 
-EngReflex AI uses an on-demand sequential pipeline to save API tokens and minimize latency:
+EngReflex AI runs entirely on the ultra-fast **Groq Cloud API** using a dual-agent configuration:
+1. **Checker Agent:** Runs **`llama-3.3-70b-versatile`** to perform fast, highly logical grammatical checks and output structured JSON.
+2. **Explainer Agent:** Runs **`llama-3.3-70b-versatile`** for deep, context-aware bilingual linguistic explanations.
+3. **Chat Partner Agent:** Runs **`llama-3.1-8b-instant`** for low-latency, engaging everyday conversation.
 
-1. **Frontend:** [Streamlit](https://streamlit.io/) (Python-based interactive web UI).
-2. **Checker Agent:** [Groq Cloud API](https://groq.com/) running **`llama-3.3-70b-versatile`** to perform fast, highly logical grammatical checks and output structured JSON.
-3. **Explainer Agent:** [Google Gemini API](https://ai.google.dev/) running **`gemini-flash-latest`** via the new `google-genai` SDK for deep, context-aware bilingual linguistic explanations.
+## 💻 Getting Started
+
+### Prerequisites
+You only need a single free API key for this project:
+- A **Groq API Key** from the [Groq Console](https://console.groq.com/).
 
 ---
 
@@ -41,16 +46,6 @@ EngReflex-AI/
 ├── main.py               # Streamlit web application interface
 └── README.md             # Project documentation
 ```
-
----
-
-## 💻 Getting Started
-
-### Prerequisites
-
-You will need the following API keys (both have generous free tiers):
-1. A **Groq API Key** from [Groq Console](https://console.groq.com/).
-2. A **Gemini API Key** from [Google AI Studio](https://aistudio.google.com/).
 
 ---
 
