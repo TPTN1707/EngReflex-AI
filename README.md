@@ -1,30 +1,54 @@
 # EngReflex AI ✍️
 
-EngReflex AI is an active English writing reflex trainer designed specifically for Vietnamese learners. Rather than being a passive autocorrect tool, it acts as an interactive "Reflex Gym" to help users eliminate literal translation habits (Viet-lish), learn natural collocations, and transition from passive English knowledge to active writing fluency.
+EngReflex AI is an interactive, real-time English writing reflex trainer designed for Vietnamese learners. Rather than being a passive autocorrect tool, it acts as an active **"Reflex Gym"** with a clean, single-screen dual-panel interface. It helps users eliminate literal translation habits (Viet-lish), master natural collocations, and transition from passive English knowledge to active conversational fluency under real-time constraints.
 
-The project utilizes a fast, cost-effective **dual-API multi-agent architecture** running entirely on free-tier services.
+The project runs entirely on the ultra-fast, cost-effective **Groq Cloud API** using a highly optimized modular architecture.
 
 ---
 
 ## 🚀 Key Features
 
-- **Literal Translation (Viet-lish) Detection:** Specifically flags sentences that are grammatically correct but structured with Vietnamese thinking patterns (literal translations).
-- **High-Precision Minimal Span Error Correction:** Isolates and corrects spelling, grammar, and punctuation errors accurately without corrupting adjacent correct words.
-- **✨ Native Speaker Style Rephrasing:** Generates highly natural, idiomatic alternatives that native speakers actually use (e.g., transforming *"My family has four people"* into *"There are four people in my family"*).
-- **💡 Tutor's Explanation & Analysis:**
-  - **Error Corrections:** Plain explanations of grammatical issues in the selected language.
-  - **Native Style Analysis:** Explains the lexical choices and idiomatic nuances of the native rephrased version.
-  - **Structure & Tense Analysis:** Compares the tenses and clause patterns of both the corrected and native versions.
-- **Graduated Explanations:** Allows users to choose between Pure Vietnamese, Bilingual, or Simple English explanations depending on their learning stage.
+- **💬 Real-Time Chat Messenger (Left Panel):** Engage in everyday, open-ended conversations with an AI chat partner. The AI drives the conversation naturally to force real-time retrieval without time to translate word-by-word.
+- **💡 Real-Time Tutor Feedback (Right Panel):** Analyzes your very last sent message instantly.
+  - **📝 Corrections:** Highlights and explains spelling, grammar, and punctuation mistakes.
+  - **✨ Native Speaker Style:** Suggests idiomatic, highly natural rephrasings that native speakers actually use (e.g., transforming *"My family has four people"* into *"There are four people in my family"*).
+  - **🔍 Tutor's Analysis:** Explains the errors in Vietnamese and analyzes the advanced vocabulary and phrasal structures of the native version.
+- **Graduated Explanations:** Choose between Pure Vietnamese, Bilingual, or Simple English explanations directly from the interface.
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
 EngReflex AI runs entirely on the ultra-fast **Groq Cloud API** using a dual-agent configuration:
-1. **Checker Agent:** Runs **`llama-3.3-70b-versatile`** to perform fast, highly logical grammatical checks and output structured JSON.
-2. **Explainer Agent:** Runs **`llama-3.3-70b-versatile`** for deep, context-aware bilingual linguistic explanations.
-3. **Chat Partner Agent:** Runs **`llama-3.1-8b-instant`** for low-latency, engaging everyday conversation.
+1. **Checker Agent:** Runs `llama-3.3-70b-versatile` to perform fast, highly logical grammatical checks and output structured JSON.
+2. **Explainer Agent:** Runs `llama-3.3-70b-versatile` for deep, context-aware bilingual linguistic explanations.
+3. **Chat Partner Agent:** Runs `llama-3.1-8b-instant` for low-latency, engaging everyday conversation.
+
+---
+
+## 📁 Project Directory Structure
+
+    EngReflex-AI/
+    ├── .env                         # API keys
+    ├── .gitignore                   # Git ignore files
+    ├── pyproject.toml               # uv package config (managed by uv)
+    ├── main.py                      # Streamlit UI entry point
+    │
+    └── src/                         # Main source code directory
+        ├── __init__.py
+        ├── config.py                # Centralized configuration and model settings
+        │
+        ├── prompts/                 # Modularized system prompts
+        │   ├── __init__.py
+        │   ├── checker.py           # Checker Agent system instructions
+        │   ├── explainer.py         # Explainer Agent system instructions
+        │   └── chat_partner.py      # Chat Partner Agent system instructions
+        │
+        └── services/                # Backend API orchestrators
+            ├── __init__.py
+            └── groq_service.py      # Integrated Groq API client
+
+---
 
 ## 💻 Getting Started
 
@@ -32,27 +56,26 @@ EngReflex AI runs entirely on the ultra-fast **Groq Cloud API** using a dual-age
 You only need a single free API key for this project:
 - A **Groq API Key** from the [Groq Console](https://console.groq.com/).
 
----
+### Installation
 
-## 📁 Project Directory Structure
+This project manages packages using Astral's fast Python package installer, `uv`.
 
-```text
-EngReflex-AI/
-├── .env                  # Local environment variables (API keys)
-├── .gitignore            # Git exclusion configuration
-├── pyproject.toml        # Dependency management file (managed by uv)
-├── prompts.py            # System prompts for Checker and Explainer agents
-├── agent.py              # Backend API orchestration logic
-├── main.py               # Streamlit web application interface
-└── README.md             # Project documentation
-```
+1. Navigate to your project directory:
 
----
+    cd EngReflex-AI
+
+2. Create a `.env` file in the root directory and add your API key:
+
+    GROQ_API_KEY=your_groq_api_key_here
+
+3. Sync and install dependencies:
+
+    uv sync
 
 ### Running the Application
 
 To start the local Streamlit web application, run the following command:
 
-    streamlit run main.py
+    uv run streamlit run main.py
 
 The application will automatically open in a new tab in your default browser (usually at http://localhost:8501).
