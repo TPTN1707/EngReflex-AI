@@ -1,6 +1,6 @@
 # EngReflex AI ✍️
 
-EngReflex AI is an interactive, real-time English writing reflex trainer designed for Vietnamese learners. Rather than being a passive autocorrect tool, it acts as an active **"Reflex Gym"** with a clean, single-screen dual-panel interface. It helps users eliminate literal translation habits (Viet-lish), master natural collocations, and transition from passive English knowledge to active conversational fluency under real-time constraints.
+EngReflex AI is an interactive, real-time English writing reflex trainer designed for Vietnamese learners. Rather than being a passive autocorrect tool, it acts as an active **"Reflex Gym"** with a clean, single-screen dual-panel interface. It helps users eliminate literal translation habits (Viet-lish), master natural collocations, and transition from passive English knowledge to active writing fluency under real-time constraints.
 
 The project runs entirely on the ultra-fast, cost-effective **Groq Cloud API** using a highly optimized modular architecture.
 
@@ -8,21 +8,25 @@ The project runs entirely on the ultra-fast, cost-effective **Groq Cloud API** u
 
 ## 🚀 Key Features
 
-- **💬 Real-Time Chat Messenger (Left Panel):** Engage in everyday, open-ended conversations with an AI chat partner. The AI drives the conversation naturally to force real-time retrieval without time to translate word-by-word.
-- **💡 Real-Time Tutor Feedback (Right Panel):** Analyzes your very last sent message instantly.
+- **💬 Real-Time Chat Messenger (Left Panel):** Engage in natural, open-ended conversations with an AI companion. The AI drives the conversation to force real-time retrieval without time to translate word-by-word in your head.
+- **👔 Contextual Writing Scenarios (New!):** Switch between different writing personas and contexts using the sidebar. The AI automatically adapts its vocabulary level and tone:
+  - *Casual Chat:* Friendly and relaxed peer conversation using everyday A2-B1 vocabulary.
+  - *Business Email:* Professional, well-structured business interactions.
+  - *Job Interview:* Formal interview queries conducting situational and behavioral checks.
+- **💡 Real-Time Tutor Feedback (Right Panel):** Analyzes your very last sent message instantly:
   - **📝 Corrections:** Highlights and explains spelling, grammar, and punctuation mistakes.
   - **✨ Native Speaker Style:** Suggests idiomatic, highly natural rephrasings that native speakers actually use (e.g., transforming *"My family has four people"* into *"There are four people in my family"*).
   - **🔍 Tutor's Analysis:** Explains the errors in Vietnamese and analyzes the advanced vocabulary and phrasal structures of the native version.
-- **Graduated Explanations:** Choose between Pure Vietnamese, Bilingual, or Simple English explanations directly from the interface.
+- **Graduated Explanations:** Choose between Pure Vietnamese, Bilingual, or Simple English explanations directly from the sidebar.
 
 ---
 
 ## 🛠️ Tech Stack & Architecture
 
-EngReflex AI runs entirely on the ultra-fast **Groq Cloud API** using a dual-agent configuration:
+EngReflex AI runs entirely on the ultra-fast **Groq Cloud API** using a multi-agent configuration:
 1. **Checker Agent:** Runs `llama-3.3-70b-versatile` to perform fast, highly logical grammatical checks and output structured JSON.
 2. **Explainer Agent:** Runs `llama-3.3-70b-versatile` for deep, context-aware bilingual linguistic explanations.
-3. **Chat Partner Agent:** Runs `llama-3.1-8b-instant` for low-latency, engaging everyday conversation.
+3. **Chat Partner Agent:** Runs `llama-3.1-8b-instant` for low-latency, engaging conversational roleplays based on the selected scenario.
 
 ---
 
@@ -32,6 +36,7 @@ EngReflex AI runs entirely on the ultra-fast **Groq Cloud API** using a dual-age
     ├── .env                         # API keys
     ├── .gitignore                   # Git ignore files
     ├── pyproject.toml               # uv package config (managed by uv)
+    ├── uv.lock                      # Locked dependency versions
     ├── main.py                      # Streamlit UI entry point
     │
     └── src/                         # Main source code directory
