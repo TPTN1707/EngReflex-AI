@@ -3,7 +3,8 @@ from groq import Groq
 from src.config import Config
 from src.prompts.checker import CHECKER_PROMPT
 from src.prompts.explainer import get_explainer_prompt
-from src.prompts.chat_partner import CHAT_PARTNER_PROMPT
+# Import the new dynamic prompt and greeting helpers
+from src.prompts.chat_partner import get_chat_partner_prompt
 
 # Validate configuration before initializing clients
 Config.validate_config()
@@ -40,11 +41,15 @@ def run_explainer_agent(check_result, level="vietnamese"):
     except Exception as e:
         return f"Explainer Agent Error: {str(e)}"
 
-def run_chat_partner_agent(chat_history):
-    """Call Groq using llama-3.1-8b-instant to generate natural conversational responses"""
+# Updated to accept scenario argument dynamically
+def run_chat_partner_agent(chat_history, scenario="casual"):
+    """
+    Call Groq using llama-3.1-8b-instant to generate natural conversational responses.
+    Dynamically loads the correct system instructions based on the selected writing scenario.
+    """
     try:
-        # Convert Gemini's chat history schema into Groq's OpenAI-compatible message format
-        messages = [{"role": "system", "content": CHAT_PARTNER_PROMPT}]
+        # Load the dynamic scenario prompt
+        messages = [{"role": "system", "content": get_chat_partner_prompt(scenario)}]
         for msg in chat_history:
             role = "assistant" if msg["role"] == "model" else "user"
             text = msg["parts"][0]["text"]
